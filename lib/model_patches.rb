@@ -36,7 +36,12 @@ Rails.configuration.to_prepare do
     #
     #    validates_inclusion_of :alert_type, :in => alert_types
     #
-    UserInfoRequestSentAlert._validate_callbacks.first.filter.options[:in] << 'survey_1'
+    callback = UserInfoRequestSentAlert._validate_callbacks.find do |callback|
+      filter = callback.filter
+      filter.is_a?(ActiveModel::Validations::InclusionValidator) &&
+        filter.attributes.include?(:alert_type)
+    end
+    callback.filter.options[:in] << 'survey_1'
 
     InfoRequest.class_eval do
         def email_subject_request(opts = {})
